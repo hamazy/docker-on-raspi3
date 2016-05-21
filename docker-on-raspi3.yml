@@ -1,0 +1,28 @@
+---
+- hosts: raspi_docker
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  tasks:
+    - name: update all
+      apt: update_cache=yes
+
+    - name: enable https download for apt
+      apt: name=apt-transport-https
+
+    - name: add an apt key of packagecloud.io
+      apt_key: url=https://packagecloud.io/gpg.key state=present
+
+    - name: add Hypriot to the apt repo
+      apt_repository: repo='deb https://packagecloud.io/Hypriot/Schatzkiste/debian/ wheezy main' state=present
+
+    - name: update all again
+      apt: update_cache=yes
+
+    - name: install docker-hypriot
+      apt: name=docker-hypriot
+
+      # See https://docs.docker.com/engine/admin/systemd/ for detail of docker systemd configuration
+    - name: enable and start docker in systemd
+      service: name=docker enabled=yes state=started
